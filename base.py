@@ -3,11 +3,14 @@ from time import time
 from datetime import datetime
 import requests
 import pandas as pd
+from inspect import getmembers
+from functools import partialmethod
 
 
 class ParserBase(object):
     def __init__(self):
         self.df = pd.DataFrame()
+        self.df_hist = pd.DataFrame()
         self.path = os.path.join(os.path.curdir, 'cache')
         self.cache_html = ''
         self.cache_timestamp = None
@@ -37,18 +40,23 @@ class ParserBase(object):
             page = requests.get(url)
             self.cache_html = page.content
 
-    def save_csv(self):
-        fn = os.path.join(self.path, self._tag + '.csv')
-        self.df.to_csv(fn)
+    def _cache_filename(self, ext):
+        fn = os.path.join(self.path, self._tag + ext)
+        fn_hist = os.path.join(self.path, self._tag + '_hist' + ext)
+        return fn, fn_hist
 
-    def save_json(self):
-        fn = os.path.join(self.path, self._tag + '.json')
-        self.df.to_json(fn)
+    def _save(self, ext, func):
+        fn, fn_hist = self._cache_filename(ext)
+        self.df.__getattr__(func)(fn)
+        self.df_hist.__getattr__(func)(fn_hist)
 
-    def load_csv(self):
-        fn = os.path.join(self.path, self._tag + '.csv')
-        self.df = pd.read_csv(fn)
+    def _load(self, ext, func):
+        fn, fn_hist = self._cache_filename(ext)
+        load_func = dict(getmembers(pd))[func]
+        self.df = load_func(fn)
+        self.df_hist = load_func(fn_hist)
 
-    def load_json(self):
-        fn = os.path.join(self.path, self._tag + '.json')
-        self.df = pd.read_json(fn)
+    save_csv = partialmethod(_save, '.csv', 'to_csv')
+    save_json = partialmethod(_save, '.json', 'to_json')
+    load_csv = partialmethod(_load, '.csv', 'read_csv')
+    load_json = partialmethod(_load, '.json', 'read_json')
