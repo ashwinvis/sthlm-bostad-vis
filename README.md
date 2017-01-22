@@ -1,4 +1,4 @@
-# Stockholm Bostad Chart
+# STHLM Bostad Vis
 Visualize the stockholm housing queue
 
 ## Dependencies

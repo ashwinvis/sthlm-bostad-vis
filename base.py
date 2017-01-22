@@ -11,6 +11,7 @@ class ParserBase(object):
         self.path = os.path.join(os.path.curdir, 'cache')
         self.cache_html = ''
         self.cache_timestamp = None
+        self.cache_update_after = 15 * 60  # in seconds
         if not os.path.exists(self.path):
             os.mkdir(self.path)
 
@@ -24,7 +25,7 @@ class ParserBase(object):
         else:
             now_timestamp = datetime.fromtimestamp(time())
             dt = now_timestamp - self.cache_timestamp
-            if dt.seconds > 60:
+            if dt.seconds > self.cache_update_after:
                 self.cache_timestamp = now_timestamp
                 return True
             else:
