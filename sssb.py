@@ -1,7 +1,10 @@
+import os
 from io import StringIO
 from lxml import html, etree
 import pandas as pd
 from itertools import chain, islice
+import matplotlib.pyplot as plt
+from datetime import date
 
 from base import ParserBase
 from requests_webkit import Render
@@ -16,6 +19,7 @@ def ichunked(seq, chunksize):
 
 class SSSBParser(ParserBase):
     _tag = 'sssb'
+    member_since = date(2014, 10, 15)
 
     def _url(self, area='', apartment_type='Apartment', max_rent='', nb_per_page=50):
         apartment_codes = {
@@ -41,7 +45,6 @@ class SSSBParser(ParserBase):
     def get(self, using='html', **kwargs):
         self._get_html(**kwargs)
         page = self.cache_html
-        print('Number of characters in page:', len(page))
         if using == 'html':
             tree = html.fromstring(page)
             return tree
@@ -69,7 +72,7 @@ class SSSBParser(ParserBase):
         self.df = pd.DataFrame(table, columns=heading)
         self.df.index = self.df['Address']
 
-    def make_df_hist(self):
+    def make_df_hist(self, store_deltas=True):
         col1 = self.cache_timestamp.strftime('%c')
         col2 = 'No. of Applications'
 
@@ -81,17 +84,36 @@ class SSSBParser(ParserBase):
         series1 = df_tmp[col1].apply(pd.to_numeric)
         series2 = df_tmp[col2].str.lstrip('(').str.rstrip('st)').apply(pd.to_numeric)
 
-        df_tmp[col1] = series1
-        df_tmp[col2] = series2
-
         if self.df_hist is None:
-            self.df_hist = df_tmp
+            self.df_hist = pd.DataFrame(
+                {col2: series2,
+                 'Start': series1})
         else:
-            try:
-                self.df_hist = self.df_hist.T.append(df_tmp[col1]).T
-                self.df_hist[col2] = df_tmp[col2]
-            except KeyError:
-                return df_tmp
+            if store_deltas:
+                delta = series1 - self.df_hist.iloc[-1] - self.df_hist['Start']
+                self.df_hist[col1] = delta
+                self.df_hist[col2] = series2
+                if all(delta == 0):
+                    print('No change')
+                    return False
+            else:
+                self.df_hist[col1] = series1
+                self.df_hist[col2] = series2
+
+        return True
+
+    def plot_hist(self, save=True):
+        plt.rc('figure', figsize=(10, 6))
+        self.df_hist.iloc[:, 1:].plot(kind='bar', stacked=True)
+
+        my_credit_days = (date.today() - self.member_since).days
+        plt.axhline(y=my_credit_days)
+
+        if save:
+            figname = os.path.join(self.path, self._tag + '.svg')
+            plt.savefig(figname)
+        else:
+            plt.show()
 
 
 if __name__ == '__main__':
@@ -100,5 +122,7 @@ if __name__ == '__main__':
 
     tree = parser.get(using='etree')
     parser.make_df(tree)
-    df = parser.make_df_hist()
-    parser.save()
+    change_in_data = parser.make_df_hist()
+    if change_in_data:
+        parser.plot_hist()
+        parser.save()
