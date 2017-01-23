@@ -1,10 +1,15 @@
 import os
 from time import time
 from datetime import datetime
-import requests
 import pandas as pd
 from inspect import getmembers
 from functools import partialmethod
+try:
+    from urllib import request
+    URLLIB = True
+except ImportError:
+    import requests
+    URLLIB = False
 
 
 def _dict(obj):
@@ -51,8 +56,13 @@ class ParserBase(object):
     def _get_html(self, *args):
         if self._renew_cache():
             url = self._url(*args)
-            page = requests.get(url)
-            self.cache_html = page.content
+            if URLLIB:
+                with urllib.request.urlopen(url) as response:
+                   html = response.read()
+            else:
+                html = requests.get(url).content
+
+            self.cache_html = html
 
     def _cache_filename(self, ext):
         fn = os.path.join(self.path, self._tag + ext)
