@@ -110,7 +110,7 @@ class SSSBParser(ParserBase):
         plt.axhline(y=my_credit_days)
 
         if save:
-            figname = os.path.join(self.path, self._tag + '.svg')
+            figname = os.path.join(self.path, self._tag + '.png')
             plt.savefig(figname)
         else:
             plt.show()
