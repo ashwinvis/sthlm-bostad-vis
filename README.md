@@ -4,5 +4,5 @@ Visualize the stockholm housing queue
 ## Dependencies
 * lxml
 * pandas
-* beautifulsoup4 (optional)
+* PyTables (to cache in HDF5 format)
 * PyQt4 / PyQt5 (for SSSB)

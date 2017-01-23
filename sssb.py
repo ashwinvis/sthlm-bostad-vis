@@ -67,11 +67,38 @@ class SSSBParser(ParserBase):
             table.append(tuple(row))
 
         self.df = pd.DataFrame(table, columns=heading)
+        self.df.index = self.df['Address']
+
+    def make_df_hist(self):
+        col1 = self.cache_timestamp.strftime('%c')
+        col2 = 'No. of Applications'
+
+        credit_days = self.df['Credit days'].str.split()
+        df_tmp = credit_days.apply(pd.Series)
+        df_tmp.columns = [col1, col2]
+
+        # Format and change dtype
+        series1 = df_tmp[col1].apply(pd.to_numeric)
+        series2 = df_tmp[col2].str.lstrip('(').str.rstrip('st)').apply(pd.to_numeric)
+
+        df_tmp[col1] = series1
+        df_tmp[col2] = series2
+
+        if self.df_hist is None:
+            self.df_hist = df_tmp
+        else:
+            try:
+                self.df_hist = self.df_hist.T.append(df_tmp[col1]).T
+                self.df_hist[col2] = df_tmp[col2]
+            except KeyError:
+                return df_tmp
 
 
 if __name__ == '__main__':
     if 'parser' not in dir():
-        parser = SSSBParser()
+        parser = SSSBParser(cache_type='h5')
 
     tree = parser.get(using='etree')
     parser.make_df(tree)
+    df = parser.make_df_hist()
+    parser.save()
