@@ -7,13 +7,15 @@ Visualize the stockholm housing queue
 * lxml
 * pandas
 * PyTables (to cache in HDF5 format)
-* PyQt4 / PyQt5 (for SSSB) and Qt-Webkit
+* PyQt4 / PyQt5, Qt-Base and Qt-Webkit (option 1)
+* selenium and phantomjs (option 2)
 * matplotlib (for plotting)
 
 ### ArchLinux
 ```bash
 # pacman -S python-lxml python-pandas python-pytables python-matplotlib
-# pacman -S qt5-webkit python-pyqt5 
+# pacman -S qt5-webkit python-pyqt5
+# pacman -S python-selenium phantomjs
 ```
 
 ### Setup email

@@ -7,7 +7,10 @@ import matplotlib.pyplot as plt
 from datetime import date
 
 from base import ParserBase
-from requests_webkit import Render
+try:
+    from requests_selenium import Render
+except ImportError:
+    from requests_webkit import Render
 
 
 def ichunked(seq, chunksize):
@@ -38,8 +41,9 @@ class SSSBParser(ParserBase):
     def _get_html(self, **kwargs):
         if self._renew_cache():
             url = self._url(**kwargs)
-            # with Render() as render:
-            render = Render()
+            with Render() as render:
+                render = Render()
+
             self.cache_html = render.get(url)
 
     def get(self, using='html', **kwargs):
@@ -83,18 +87,17 @@ class SSSBParser(ParserBase):
         # Format and change dtype
         series1 = df_tmp[col1].apply(pd.to_numeric)
         series2 = df_tmp[col2].str.lstrip('(').str.rstrip('st)').apply(pd.to_numeric)
-
         if self.df_hist is None:
             self.df_hist = pd.DataFrame(
                 {col2: series2,
                  'Start': series1})
         else:
+            self.df_hist = self.df_hist.T.dropna().T
             if store_deltas:
-                delta = series1 - self.df_hist.iloc[-1] - self.df_hist['Start']
-                self.df_hist[col1] = delta
                 self.df_hist[col2] = series2
+                delta = series1 - self.df_hist.T.sum() + series2
+                self.df_hist[col1] = delta
                 if all(delta == 0):
-                    print('No change')
                     return False
             else:
                 self.df_hist[col1] = series1

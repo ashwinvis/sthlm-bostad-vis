@@ -1,4 +1,5 @@
 from sys import argv
+import time
 try:
     from PyQt5.QtWidgets import QApplication
     from PyQt5.QtCore import QUrl
@@ -14,8 +15,15 @@ class Render(QWebPage):
         self.app = QApplication(argv)
         super(QWebPage, self).__init__()
 
+    def __enter__(self):
+        pass
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        pass
+
     def _loadFinished(self, result):
         self.frame = self.mainFrame()
+        time.sleep(5)
         self.app.quit()
 
     def get(self, url):
