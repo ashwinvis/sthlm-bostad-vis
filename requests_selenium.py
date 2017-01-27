@@ -1,5 +1,6 @@
 from selenium import webdriver
 import time
+import signal
 
 
 class Render(webdriver.PhantomJS):
@@ -12,4 +13,10 @@ class Render(webdriver.PhantomJS):
         pass
 
     def __exit__(self, exc_type, exc_val, exc_tb):
-        self.close()
+        self.delete_all_cookies()
+
+        # kill the specific phantomjs child process
+        self.service.process.send_signal(signal.SIGTERM)
+
+        # quit the node process
+        self.quit()
