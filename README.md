@@ -1,6 +1,12 @@
 # STHLM Bostad Vis
 Visualize the stockholm housing queue
 
+Currently supports parsing:
+
+* SSSB
+
+![Web scrapping SSSB](https://ashwinvis.github.io/sthlm-bostad-vis/doc/example_sssb.svg)
+
 ## Installation
 
 ### Dependencies

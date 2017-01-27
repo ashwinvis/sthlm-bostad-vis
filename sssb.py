@@ -105,9 +105,14 @@ class SSSBParser(ParserBase):
 
         return True
 
-    def plot_hist(self, save=True):
-        plt.rc('figure', figsize=(10, 6))
-        self.df_hist.iloc[:, 1:].plot(kind='bar', stacked=True)
+    def plot_hist(self, save=True, **kwargs):
+        plt.style.use('ggplot')
+        self.df_hist.iloc[:, 1:].plot(kind='bar', stacked=True, **kwargs)
+        plt.subplots_adjust(left=0.075, bottom=0.4, right=0.83, top=0.95)
+
+        plt.legend(loc='best', fontsize=8, bbox_to_anchor=(1.01, 1.0))
+        plt.ylabel('Max. credit days')
+        plt.autoscale()
 
         my_credit_days = (date.today() - self.member_since).days
         plt.axhline(y=my_credit_days)
