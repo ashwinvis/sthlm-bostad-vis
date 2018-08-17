@@ -48,6 +48,6 @@ export PYEMAIL_PASSWD=password
 
 ### Schedule crontab
 ```bash
-@hourly cd /path/to/sthlm-bostad-vis && /usr/bin/xvfb-run /usr/bin/python sssb.py
+@hourly cd /path/to/sthlm-bostad-vis && /usr/bin/xvfb-run /usr/bin/python run_sssb.py
 @daily cd /path/to/sthlm-bostad-vis && ./pyemail -d cache -s user@mailserver.com -r receiver@otherserver.com
 ```
