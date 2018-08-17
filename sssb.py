@@ -14,6 +14,17 @@ except ImportError:
 
 
 def ichunked(seq, chunksize):
+    """ichunked
+
+    Parameters
+    ----------
+
+    seq :
+    chunksize :
+
+    Returns
+    -------
+    """
     """Yields items from an iterator in iterable chunks."""
     it = iter(seq)
     for i in it:
@@ -22,7 +33,7 @@ def ichunked(seq, chunksize):
 
 class SSSBParser(ParserBase):
     _tag = 'sssb'
-    member_since = date(2014, 10, 15)
+    member_since = date(2001, 10, 31)
 
     def _url(self, area='', apartment_type='Apartment', max_rent='', nb_per_page=50):
         apartment_codes = {
@@ -31,23 +42,23 @@ class SSSBParser(ParserBase):
             'Apartment': 'BOASL',
         }
         url = (
-            r'https://www.sssb.se/en/find-apartment/available-apartments/'
+            r'https://www.sssb.se/en/find-apartment/apply-for-apartment/available-apartments/'
             r'available-apartments-list/?omraden={}&objektTyper={}&hyraMax={}'
             r'&actionId=&paginationantal={}').format(
                 area, apartment_codes[apartment_type], max_rent, nb_per_page)
-
+        print("Loading", url)
         return url
 
-    def _get_html(self, **kwargs):
+    def _get_html(self, *args):
         if self._renew_cache():
-            url = self._url(**kwargs)
+            url = self._url(*args)
             with Render() as render:
                 render = Render()
 
             self.cache_html = render.get(url)
 
-    def get(self, using='html', **kwargs):
-        self._get_html(**kwargs)
+    def get(self, using='html', *args):
+        self._get_html(*args)
         page = self.cache_html
         if using == 'html':
             tree = html.fromstring(page)
@@ -119,18 +130,7 @@ class SSSBParser(ParserBase):
 
         if save:
             figname = os.path.join(self.path, self._tag + '.png')
+            print("Saving", figname)
             plt.savefig(figname)
         else:
             plt.show()
-
-
-if __name__ == '__main__':
-    if 'parser' not in dir():
-        parser = SSSBParser(cache_type='h5')
-
-    tree = parser.get(using='etree')
-    parser.make_df(tree)
-    change_in_data = parser.make_df_hist()
-    if change_in_data:
-        parser.plot_hist()
-        parser.save()

@@ -20,7 +20,7 @@ def _dict(obj):
 class ParserBase(object):
     _tag = 'base'
 
-    def __init__(self, cache_type='h5'):
+    def __init__(self, cache_type='h5', *args):
         self.path = os.path.join(os.path.curdir, 'cache')
         fn, fn_hist = self._cache_filename('.' + cache_type)
         self.cache_type = cache_type
@@ -57,8 +57,8 @@ class ParserBase(object):
         if self._renew_cache():
             url = self._url(*args)
             if URLLIB:
-                with urllib.request.urlopen(url) as response:
-                   html = response.read()
+                with request.urlopen(url) as response:
+                    html = response.read()
             else:
                 html = requests.get(url).content
 
