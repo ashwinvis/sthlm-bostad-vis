@@ -4,11 +4,14 @@ from datetime import datetime
 import pandas as pd
 from inspect import getmembers
 from functools import partialmethod
+
 try:
     from urllib import request
+
     URLLIB = True
 except ImportError:
     import requests
+
     URLLIB = False
 
 
@@ -18,13 +21,13 @@ def _dict(obj):
 
 
 class ParserBase(object):
-    _tag = 'base'
+    _tag = "base"
 
-    def __init__(self, cache_type='h5', *args):
-        self.path = os.path.join(os.path.curdir, 'cache')
-        fn, fn_hist = self._cache_filename('.' + cache_type)
+    def __init__(self, cache_type="h5", *args):
+        self.path = os.path.join(os.path.curdir, "cache")
+        fn, fn_hist = self._cache_filename("." + cache_type)
         self.cache_type = cache_type
-        self.cache_html = ''
+        self.cache_html = ""
         self.cache_timestamp = None
         self.cache_update_after = 15 * 60  # in seconds
 
@@ -38,7 +41,7 @@ class ParserBase(object):
             os.mkdir(self.path)
 
     def _url(*args):
-        return r'http://www.example.com'
+        return r"http://www.example.com"
 
     def _renew_cache(self):
         if self.cache_timestamp is None:
@@ -66,7 +69,7 @@ class ParserBase(object):
 
     def _cache_filename(self, ext):
         fn = os.path.join(self.path, self._tag + ext)
-        fn_hist = os.path.join(self.path, self._tag + '_hist' + ext)
+        fn_hist = os.path.join(self.path, self._tag + "_hist" + ext)
         return fn, fn_hist
 
     def _save(self, ext, func, **kwargs):
@@ -80,15 +83,15 @@ class ParserBase(object):
         self.df = load_func(fn, **kwargs)
         self.df_hist = load_func(fn_hist, **kwargs)
 
-    save_csv = partialmethod(_save, '.csv', 'to_csv')
-    save_json = partialmethod(_save, '.json', 'to_json')
-    save_h5 = partialmethod(_save, '.h5', 'to_hdf', key=_tag, format='table')
-    load_csv = partialmethod(_load, '.csv', 'read_csv')
-    load_json = partialmethod(_load, '.json', 'read_json')
-    load_h5 = partialmethod(_load, '.h5', 'read_hdf', key=_tag, format='table')
+    save_csv = partialmethod(_save, ".csv", "to_csv")
+    save_json = partialmethod(_save, ".json", "to_json")
+    save_h5 = partialmethod(_save, ".h5", "to_hdf", key=_tag, format="table")
+    load_csv = partialmethod(_load, ".csv", "read_csv")
+    load_json = partialmethod(_load, ".json", "read_json")
+    load_h5 = partialmethod(_load, ".h5", "read_hdf", key=_tag, format="table")
 
     def save(self):
-        _dict(self)['save_' + self.cache_type]()
+        _dict(self)["save_" + self.cache_type]()
 
     def load(self):
-        _dict(self)['load_' + self.cache_type]()
+        _dict(self)["load_" + self.cache_type]()

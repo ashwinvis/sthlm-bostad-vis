@@ -1,5 +1,6 @@
 from sys import argv
 import time
+
 try:
     from PyQt5.QtWidgets import QApplication
     from PyQt5.QtCore import QUrl
