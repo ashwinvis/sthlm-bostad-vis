@@ -10,7 +10,7 @@ Currently supports parsing:
 ## Quick start
 
 ```bash
-pipenv install
+pip install -r requirements.txt
 python run_sssb.py
 ```
 

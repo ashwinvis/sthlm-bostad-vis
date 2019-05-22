@@ -88,7 +88,7 @@ class ParserBase(object):
     save_h5 = partialmethod(_save, ".h5", "to_hdf", key=_tag, format="table")
     load_csv = partialmethod(_load, ".csv", "read_csv")
     load_json = partialmethod(_load, ".json", "read_json")
-    load_h5 = partialmethod(_load, ".h5", "read_hdf", key=_tag, format="table")
+    load_h5 = partialmethod(_load, ".h5", "read_hdf", key=_tag)
 
     def save(self):
         _dict(self)["save_" + self.cache_type]()
